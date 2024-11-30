@@ -1,0 +1,9 @@
+rlbot==1.68.0
+rlgym-ppo @ git+https://github.com/AechPro/rlgym-ppo@80d662fcca2505cc175c50b1f0d5d91deb1a098f
+rlgym-sim @ git+https://github.com/AechPro/rocket-league-gym-sim@a1240530239d6b7671147b4f97e9b5e130d0acce
+rlgym_compat==1.1.0
+rlviser-py==0.6.9
+RocketSim==2.1.1.post1
+torch==2.4.0+cu118
+wandb
+pandas

@@ -1,0 +1,10 @@
+ranked-duels-json/
+ranked-duels-raw/
+data*/
+manual_checkpoints/
+processed-dataframes
+myenv/
+collision_meshes/
+wandb
+wandb_backup/
+rlviser.exe

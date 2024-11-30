@@ -1,0 +1,3 @@
+conda activate tf_main
+cd "C:\Users\Cole Johnson\OneDrive - rit.edu\machine_intelligence\final_project"
+python recordingLearner.py
