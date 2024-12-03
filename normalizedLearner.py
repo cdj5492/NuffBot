@@ -32,7 +32,7 @@ def build_rocketsim_env():
     game_tick_rate = 120
     tick_skip = 8
     timeout_seconds = 10
-    match_timeout_seconds = 20
+    match_timeout_seconds = 25
     timeout_ticks = int(round(timeout_seconds * game_tick_rate / tick_skip))
     match_timeout_ticks = int(round(match_timeout_seconds * game_tick_rate / tick_skip))
 
@@ -40,19 +40,23 @@ def build_rocketsim_env():
     terminal_conditions = [TimeoutCondition(match_timeout_ticks), NoTouchTimeoutCondition(timeout_ticks), GoalScoredCondition()]
 
     reward_fn = CombinedReward.from_zipped(
-        (EventReward(team_goal=1, concede=-1), 1.5 * 100),
-        (VelocityBallToGoalReward(), 0.64 * 100 / match_timeout_ticks),
-        (rwd.SpeedTowardBallReward(), 0.64 * 100 / match_timeout_ticks),
+        (EventReward(team_goal=1, concede=-1), 2.0 * 100),
+        # (VelocityBallToGoalReward(), 0.64 * 100 / match_timeout_ticks),
+        # (rwd.SpeedTowardBallReward(), 0.64 * 100 / match_timeout_ticks),
+        (rwd.AirReward(), 0.05 * 100 / match_timeout_ticks),
         (FaceBallReward(), 0.32 * 100 / match_timeout_ticks),
-        # (rwd.AirReward(), 0.05 / match_timeout_ticks),
         (rwd.AirTouchReward(), 0.1 * 100),
-        (rwd.ConserveBoostReward(), 0.32 * 100 / match_timeout_ticks),
+        (rwd.ConserveBoostReward(), 0.5 * 100 / match_timeout_ticks),
         (rwd.HitBallHardReward(), 0.1 * 100),
         (rwd.StayOnTeamSideReward(), 0.2 * 100 / match_timeout_ticks),
         (rwd.NotMovingPenalty(), 0.05 * 100 / match_timeout_ticks),
         (rwd.DribbleReward(), 0.5 * 100 / match_timeout_ticks),
         (rwd.HitPostPenalty(), 0.1 * 100 / match_timeout_ticks),
+        (rwd.FirstTouchReward(), 0.3 * 100),
         (rwd.MaximizeTimeBetweenFlipsReward(), 0.2 * 100 / match_timeout_ticks),
+        (rwd.CollectBoostPadReward(), .1 * 100 / 5),
+        (rwd.VelocityReward(), 0.35 * 100 / match_timeout_ticks),
+        (rwd.JumpOffWallReward(), 0.04 * 100)
     )
 
     #obs_builder = obs.NectoObsBuilder()
@@ -81,8 +85,8 @@ if __name__ == "__main__":
     from rlgym_ppo import Learner
     metrics_logger = MLLogger()
 
-    # n_proc = 85
-    n_proc = 1
+    n_proc = 85
+    # n_proc = 1
 
     # educated guess - could be slightly higher or lower
     min_inference_size = max(1, int(round(n_proc * 0.9)))
@@ -105,8 +109,8 @@ if __name__ == "__main__":
                       ppo_ent_coef=0.001,
                       ppo_clip_range=0.2,
                       ppo_epochs=1,
-                      policy_lr=2e-4,
-                      critic_lr=2e-4,
+                      policy_lr=1e-4,
+                      critic_lr=1e-4,
                       render=True,
                       render_delay=8.0/120.0,
                       add_unix_timestamp=False,
@@ -114,7 +118,7 @@ if __name__ == "__main__":
                       standardize_obs=False,
                       save_every_ts=20_000_000,
                       timestep_limit=1_000_000_000_000,
-                      load_wandb=False,
+                      load_wandb=True,
                       wandb_run_name="NormalizedLearner1",
                       checkpoint_load_folder=latest_checkpoint_dir,
                       log_to_wandb=True)

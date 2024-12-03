@@ -3,6 +3,7 @@ import random
 import rlgym_sim
 import pandas as pd
 import os
+import rlviser_py as vis
 from rlgym_sim.utils.state_setters import StateWrapper
 
 def load_replay_from_file(filename) -> pd.DataFrame:
@@ -54,8 +55,10 @@ def play_replay(in_file):
             ep_reward += reward[0]
             steps += 1
 
+            game_speed = vis.get_game_speed()
+
             # Sleep to keep the game in real time
-            time.sleep(max(0, starttime + steps / TPS - time.time()))
+            time.sleep(max(0, starttime + steps / (TPS * game_speed) - time.time()))
 
         length = time.time() - t0
         print("Step time: {:1.5f} | Episode time: {:.2f} | Episode Reward: {:.2f}".format(length / steps, length, ep_reward))

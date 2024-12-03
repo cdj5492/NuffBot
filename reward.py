@@ -282,8 +282,46 @@ class MaximizeTimeBetweenFlipsReward(RewardFunction):
 
     def get_reward(self, player: PlayerData, state: GameState, previous_action) -> float:
         if player.has_flip and not player.has_jump:
+            # previous_action[
             return np.dot(player.car_data.forward(), np.array([0, 0, 1]))
         else:
             return 0
 
-        
+class CollectBoostPadReward(RewardFunction):
+    def __init__(self):
+        self.prev_boost_pickups = [0] * 8
+        super().__init__()
+
+    def reset(self, initial_state: GameState):
+        pass
+
+    def get_reward(self, player: PlayerData, state: GameState, previous_action) -> float:
+        reward = player.boost_pickups - self.prev_boost_pickups[player.car_id]
+        self.prev_boost_pickups[player.car_id] = player.boost_pickups
+        return reward
+
+class VelocityReward(RewardFunction):
+    def __init__(self):
+        super().__init__()  
+
+    def reset(self, initial_state: GameState):
+        pass
+
+    def get_reward(self, player: PlayerData, state: GameState, previous_action) -> float:
+        return np.linalg.norm(player.car_data.linear_velocity) / CAR_MAX_SPEED
+
+class JumpOffWallReward(RewardFunction):
+    def __init__(self):
+        self.previous_has_jump = [False] * 8
+        super().__init__()
+
+    def reset(self, initial_state: GameState):
+        self.previous_has_jump = [False] * 8
+
+    def get_reward(self, player: PlayerData, state: GameState, previous_action) -> float:
+        return_amt = 0
+        if player.car_data.position[2] > CEILING_Z/4:
+            if not player.has_jump and self.previous_has_jump[player.car_id]:
+                return_amt = 1
+        self.previous_has_jump[player.car_id] = player.has_jump
+        return return_amt

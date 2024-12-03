@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import torch
 import numpy as np
+import rlviser_py as vis
 from discrete_policy import DiscreteFF
 from actionp import LookupAction
 from rlgym_sim.utils.state_setters import StateWrapper
@@ -59,6 +60,8 @@ if __name__ == "__main__":
     while True:
         obs = env.reset()
 
+        blue_score = 0
+        orange_score = 0
         done = False
         steps = 0
         ep_reward = 0
@@ -75,12 +78,19 @@ if __name__ == "__main__":
                 if done:
                     break
 
+                if state['state'].blue_score != blue_score or state['state'].orange_score != orange_score:
+                    blue_score = state['state'].blue_score
+                    orange_score = state['state'].orange_score
+                    print("GOAL", blue_score, orange_score)
+
+
                 env.render()
                 ep_reward += reward[0]
                 steps += 1
 
+                game_speed = vis.get_game_speed()
                 # Sleep to keep the game in real time
-                time.sleep(max(0, starttime + steps / (120) - time.time()))
+                time.sleep(max(0, starttime + steps / (120 * game_speed) - time.time()))
 
         length = time.time() - t0
         print("Step time: {:1.5f} | Episode time: {:.2f} | Episode Reward: {:.2f}".format(length / steps, length, ep_reward))
