@@ -65,19 +65,28 @@ def rearrange_data(x_data, y_data):
 # print(x_data[0][2][:2])
 
 n_epochs = 10
-learning_rate = 0.0002
 
 # Define the optimizer and loss function
 optimizer = Adam(model.parameters(), lr=0.001)
 criterion = MSELoss()
 
+# Assume x_data contains tensors and move them to CUDA
+x_data = torch.stack([v.cuda().float() for v in x_data])
+
+# Assume y_data is a tensor; move it to CUDA and cast to float
+# y_data = y_data.cuda().float()
 
 # Training loop
 for epoch in range(n_epochs):
-    y_pred = model(*[torch.from_numpy(v).float().cuda() for v in x_data])
-    loss = criterion(y_pred, y_data)   
+    # Forward pass
+    y_pred = model(x_data)
+    
+    # Compute loss
+    loss = criterion(y_pred, y_data)
+
+    # Backward pass and optimization
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    print(f"Epoch {epoch+1}/{n_epochs}, Loss: {loss.item()}")
 
+    print(f"Epoch {epoch+1}/{n_epochs}, Loss: {loss.item()}")
